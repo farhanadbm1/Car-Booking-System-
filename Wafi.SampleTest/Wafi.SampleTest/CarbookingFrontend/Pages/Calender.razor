@@ -1,0 +1,39 @@
+@page "/calendar"
+@inject HttpClient Http
+
+<h3>Car Booking Calendar</h3>
+
+<button class="btn btn-primary" @onclick="OpenBookingPage">+ Add Booking</button>
+
+<div id="calendar"></div>
+
+@code {
+    private List<BookingEventDto> bookings = new List<BookingEventDto>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Fetch bookings from API
+        bookings = await Http.GetFromJsonAsync<List<BookingEventDto>>("https://your-api-url.com/api/bookings");
+
+        // Load calendar
+        await JS.InvokeVoidAsync("initializeCalendar", bookings);
+    }
+
+    private void OpenBookingPage()
+    {
+        Navigation.NavigateTo("/booking");
+    }
+
+    [Inject] IJSRuntime JS { get; set; }
+    [Inject] NavigationManager Navigation { get; set; }
+}
+
+@code {
+    public class BookingEventDto
+    {
+        public string Title { get; set; }
+        public DateTime Start { get; set; }
+        public DateTime End { get; set; }
+        public string Color { get; set; }  // Color based on event type
+    }
+}
